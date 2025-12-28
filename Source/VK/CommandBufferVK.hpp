@@ -978,8 +978,8 @@ NRI_INLINE void CommandBufferVK::Barrier(const BarrierDesc& barrierDesc) {
     for (uint32_t i = 0; i < barrierDesc.textureNum; i++) {
         const TextureBarrierDesc& in = barrierDesc.textures[i];
         const TextureVK& textureVK = *(TextureVK*)in.texture;
-        const QueueVK& srcQueue = *(QueueVK*)in.srcQueue;
-        const QueueVK& dstQueue = *(QueueVK*)in.dstQueue;
+        const QueueVK* srcQueue = (QueueVK*)in.srcQueue;
+        const QueueVK* dstQueue = (QueueVK*)in.dstQueue;
 
         VkImageAspectFlags aspectFlags = GetImageAspectFlags(in.planes);
         if (in.planes == PlaneBits::ALL)
@@ -993,8 +993,8 @@ NRI_INLINE void CommandBufferVK::Barrier(const BarrierDesc& barrierDesc) {
         out.dstAccessMask = GetAccessFlags(in.after.access);
         out.oldLayout = GetImageLayout(in.before.layout);
         out.newLayout = GetImageLayout(in.after.layout);
-        out.srcQueueFamilyIndex = in.srcQueue ? srcQueue.GetFamilyIndex() : VK_QUEUE_FAMILY_IGNORED;
-        out.dstQueueFamilyIndex = in.dstQueue ? dstQueue.GetFamilyIndex() : VK_QUEUE_FAMILY_IGNORED;
+        out.srcQueueFamilyIndex = srcQueue ? srcQueue->GetFamilyIndex() : VK_QUEUE_FAMILY_IGNORED;
+        out.dstQueueFamilyIndex = dstQueue ? dstQueue->GetFamilyIndex() : VK_QUEUE_FAMILY_IGNORED;
         out.image = textureVK.GetHandle();
         out.subresourceRange = {
             aspectFlags,
